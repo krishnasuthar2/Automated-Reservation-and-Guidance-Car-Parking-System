@@ -1,36 +1,46 @@
 # Automated Reservation and Guidance Car Parking System
 
-A smart parking system that enables users to check real-time slot availability, reserve parking spaces, and get guided directions to their assigned spot using IoT-based monitoring and automation.
+This project presents a smart parking solution designed to reduce the time and effort required to find and reserve parking spaces in busy urban environments. The system enables users to check real-time parking availability, reserve slots, and receive guided navigation to their designated parking spot.
 
-# Features
--> Real-time parking availability
+It integrates automation, sensor-based monitoring, and user-friendly interfaces to optimize parking space utilization and minimize traffic congestion caused by searching for parking. The system also enhances security and efficiency through controlled access and digital management of parking records.
 
--> Automated entry/exit system
+## Key Features:
 
--> Navigation guidance to parking slots
+->Real-time parking slot availability tracking.
 
-# Technologies Used
+->Online reservation of parking spaces.
+
+->Automated entry and exit management.
+
+->Guided navigation to allocated parking slots.
+
+->Efficient space utilization and reduced congestion.
+
+This project aims to contribute to smart city infrastructure by providing a scalable, efficient, and user-centric parking management solution.
+
+## Technologies Used
 -> IoT Sensors
 
 ->Arduino / Raspberry Pi
 
 ->Embedded Systems
 
-# System Architecture
+## System Architecture
 
 [ Sensors ] → [ Microcontroller ] → [ Server/Database ] → [ User Interface ]
 
-# How It Works
+## How It Works
 
 Sensors detect parking slot occupancy and send data to the microcontroller(Arduino). Server updates availabilty in real-time. Users can view availability, reserve a slot, and receive directions to the assigned parking space.
 
-# Images
-![Screenshot of a comment on a GitHub issue showing an image, added in the Markdown, of an Octocat smiling and raising a tentacle.](https://myoctocat.com/assets/images/base-octocat.svg)
-# Documentation
+## Images
+![System Architecture](argcps.jpg)
+
+## Documentation
 
 Full project report is available in this repository.
 
-# Future Improvements
+## Future Improvements
 -> AI-based parking prediction
 
 -> Mobile application 
