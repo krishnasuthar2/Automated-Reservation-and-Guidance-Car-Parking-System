@@ -1,0 +1,137 @@
+# include <Servo.h>                  
+#include <Wire.h>                   
+#include <LiquidCrystal_I2C.h>      
+
+LiquidCrystal_I2C lcd(0x27, 20, 4);  /* Initialize 20x4 I2C LCD at address 0x27 */ 
+Servo myservo;                       
+/* Servo object to control the gate */ 
+/* Define pin numbers for IR sensors */ 
+
+#define ir_enter 2     /* IR sensor at entry gate */ 
+#define ir_back  4     /* IR sensor at exit gate */ 
+#define ir_car1 5      
+#define ir_car2 6      
+#define ir_car3 7      
+#define ir_car4 8      
+#define ir_car5 9      
+#define ir_car6 10     
+
+Variables to track slot occupancy: 
+Value 1 = Occupied 
+Value 0 = Available 
+
+int S1=0, S2=0, S3=0, S4=0, S5=0, S6=0; 
+
+int flag1=0;   /* Entry flag */ 
+int flag2=0;   /* Exit flag */ 
+int slot = 6;  /* Total available slots */ 
+
+void setup() { 
+    Serial.begin(9600);  /* Initialize serial communication for debugging */ 
+    /* Set all sensor pins as input */ 
+    pinMode(ir_car1, INPUT); 
+    pinMode(ir_car2, INPUT); 
+    pinMode(ir_car3, INPUT); 
+    pinMode(ir_car4, INPUT); 
+    pinMode(ir_car5, INPUT); 
+    pinMode(ir_car6, INPUT); 
+    pinMode(ir_enter, INPUT); 
+    pinMode(ir_back, INPUT); 
+
+    myservo.attach(3);       
+    myservo.write(90);       
+
+    lcd.begin(20, 4);        
+    lcd.setCursor(0, 1);      
+
+    lcd.print("    Car  parking  "); 
+    lcd.setCursor(0, 2); 
+    lcd.print("   System     "); 
+    delay(2000);             
+    lcd.clear();             
+
+    Read_Sensor();            
+    int total = S1 + S2 + S3 + S4 + S5 + S6;  /* Count occupied slots */ 
+    slot = slot - total;                     
+
+} 
+void loop() { 
+    Read_Sensor();  /* Refresh sensor readings */ 
+    /* Display total available slots */ 
+    lcd.setCursor(0, 0); 
+    lcd.print("   Have Slot: "); 
+    lcd.print(slot); 
+    lcd.print("    "); 
+    /* Display status of each slot */ 
+    lcd.setCursor(0, 1); 
+    lcd.print(S1 == 1 ? "S1:Fill " : "S1:Empty"); 
+    lcd.setCursor(10, 1); 
+    lcd.print(S2 == 1 ? "S2:Fill " : "S2:Empty"); 
+    lcd.setCursor(0, 2); 
+    lcd.print(S3 == 1 ? "S3:Fill " : "S3:Empty"); 
+    lcd.setCursor(10, 2); 
+    lcd.print(S4 == 1 ? "S4:Fill " : "S4:Empty"); 
+    lcd.setCursor(0, 3); 
+    lcd.print(S5 == 1 ? "S5:Fill " : "S5:Empty"); 
+    lcd.setCursor(10, 3); 
+    lcd.print(S6 == 1 ? "S6:Fill " : "S6:Empty"); 
+  /* 
+    Entry logic: 
+    If the IR sensor at the entrance is triggered and flag1 is not already set, 
+    and slots are available, open the gate and reduce available slot count. 
+  */ 
+  
+ if (digitalRead(ir_enter) == 0 && flag1 == 0) { 
+    if (slot > 0) { 
+      flag1 = 1; 
+      if (flag2 == 0) { 
+        myservo.write(180);   /* Open gate */ 
+        slot = slot - 1;      /* One car entered */ 
+      } 
+    } else { 
+      /* No slot available */ 
+      lcd.setCursor(0, 0); 
+      lcd.print(" Sorry Parking Full "); 
+      delay(1500); 
+    } 
+  } 
+ 
+  /* 
+    Exit logic: 
+    If IR sensor at the exit is triggered and flag2 is not already set, 
+    and there was no car entry, then increase the available slots. 
+  */ 
+   
+if (digitalRead(ir_back) == 0 && flag2 == 0) { 
+    flag2 = 1; 
+    if (flag1 == 0) { 
+      myservo.write(180);  /* Open gate */ 
+      slot = slot + 1;     /* One car exited */ 
+    } 
+  } 
+/* 
+Close gate: 
+If both entry and exit are flagged (meaning transition is complete), close gate. 
+*/ 
+if (flag1 == 1 && flag2 == 1) { 
+delay(1000);           
+/* Wait before closing gate */ 
+myservo.write(90);     /* Close gate */ 
+flag1 = 0; 
+flag2 = 0; 
+} 
+delay(1);  /* Small delay for smooth processing */ 
+} 
+/* 
+Function: Read_Sensor 
+Purpose: Read all 6 parking slot IR sensors and update S1 to S6. 
+These values indicate whether each slot is filled or empty. 
+*/ 
+void Read_Sensor() { 
+S1 = (digitalRead(ir_car1) == 0) ? 1 : 0; 
+S2 = (digitalRead(ir_car2) == 0) ? 1 : 0; 
+S3 = (digitalRead(ir_car3) == 0) ? 1 : 0; 
+S4 = (digitalRead(ir_car4) == 0) ? 1 : 0; 
+S5 = (digitalRead(ir_car5) == 0) ? 1 : 0; 
+S6 = (digitalRead(ir_car6) == 0) ? 1 : 0; 
+} 
